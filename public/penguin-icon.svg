@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Penguin app icon">
+  <rect width="512" height="512" rx="112" fill="#e0f2fe"/>
+  <circle cx="256" cy="258" r="168" fill="#111827"/>
+  <ellipse cx="256" cy="300" rx="112" ry="128" fill="#f8fafc"/>
+  <circle cx="202" cy="220" r="24" fill="#f8fafc"/>
+  <circle cx="310" cy="220" r="24" fill="#f8fafc"/>
+  <circle cx="202" cy="224" r="10" fill="#111827"/>
+  <circle cx="310" cy="224" r="10" fill="#111827"/>
+  <path d="M232 258h48l-24 28z" fill="#f59e0b"/>
+  <path d="M164 392c34 28 150 28 184 0" fill="none" stroke="#111827" stroke-width="20" stroke-linecap="round"/>
+  <path d="M178 402l-46 34h76z" fill="#f59e0b"/>
+  <path d="M334 402l46 34h-76z" fill="#f59e0b"/>
+  <path d="M112 294c-42 28-54 74-34 98 30-20 54-48 70-84z" fill="#111827"/>
+  <path d="M400 294c42 28 54 74 34 98-30-20-54-48-70-84z" fill="#111827"/>
+</svg>

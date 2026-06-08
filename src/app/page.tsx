@@ -2,10 +2,20 @@
 
 import { useEffect, useState } from "react";
 
+type BeforeInstallPromptEvent = Event & {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
+};
+
 export default function Home() {
   const [cameraPhotoUrl, setCameraPhotoUrl] = useState<string | null>(null);
   const [uploadPreviewUrl, setUploadPreviewUrl] = useState<string | null>(null);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [installPrompt, setInstallPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null);
+  const [installStatus, setInstallStatus] = useState(
+    "Se o navegador permitir, voce pode instalar este PWA.",
+  );
   const [locationStatus, setLocationStatus] = useState(
     "Localizacao ainda nao solicitada",
   );
@@ -48,6 +58,26 @@ export default function Home() {
     return `${(sizeInKb / 1024).toFixed(1)} MB`;
   }
 
+  async function handleInstallApp() {
+    if (!installPrompt) {
+      setInstallStatus(
+        "Use o menu do navegador e escolha Instalar app ou Adicionar a tela inicial.",
+      );
+      return;
+    }
+
+    await installPrompt.prompt();
+    const choice = await installPrompt.userChoice;
+
+    if (choice.outcome === "accepted") {
+      setInstallStatus("Instalacao aceita pelo usuario.");
+    } else {
+      setInstallStatus("Instalacao cancelada pelo usuario.");
+    }
+
+    setInstallPrompt(null);
+  }
+
   useEffect(() => {
     return () => {
       if (cameraPhotoUrl) {
@@ -63,6 +93,23 @@ export default function Home() {
       }
     };
   }, [uploadPreviewUrl]);
+
+  useEffect(() => {
+    function handleBeforeInstallPrompt(event: Event) {
+      event.preventDefault();
+      setInstallPrompt(event as BeforeInstallPromptEvent);
+      setInstallStatus("Este navegador permite instalar o app agora.");
+    }
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener(
+        "beforeinstallprompt",
+        handleBeforeInstallPrompt,
+      );
+    };
+  }, []);
 
   function handleLocationError(error: GeolocationPositionError) {
     if (error.code === error.PERMISSION_DENIED) {
@@ -121,6 +168,17 @@ export default function Home() {
             Uma tela simples para testar camera, localizacao e upload simulado
             usando apenas APIs do navegador.
           </p>
+
+          <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:items-center">
+            <button
+              className="rounded-md bg-sky-600 px-4 py-2 text-sm font-medium text-white"
+              type="button"
+              onClick={handleInstallApp}
+            >
+              Instalar app
+            </button>
+            <p className="text-sm text-zinc-600">{installStatus}</p>
+          </div>
         </header>
 
         <div className="grid gap-4">

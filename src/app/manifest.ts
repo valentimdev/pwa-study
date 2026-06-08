@@ -1,25 +1,20 @@
-import type { MetadataRoute } from 'next'
- 
+import type { MetadataRoute } from "next";
+
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'pwa-study',
-    short_name: 'pwa-study',
-    description: 'A Progressive Web App built with Next.js',
-    start_url: '/',
-    display: 'standalone',
-    background_color: '#ffffff',
-    theme_color: '#000000',
+    name: "PWA Study",
+    short_name: "PWA Study",
+    description: "Um PWA simples para testar recursos do celular.",
+    start_url: "/",
+    display: "standalone",
+    background_color: "#f9fafb",
+    theme_color: "#111827",
     icons: [
       {
-        src: '/icon-192x192.png',
-        sizes: '192x192',
-        type: 'image/png',
-      },
-      {
-        src: '/icon-512x512.png',
-        sizes: '512x512',
-        type: 'image/png',
+        src: "/penguin-icon.svg",
+        sizes: "any",
+        type: "image/svg+xml",
       },
     ],
-  }
+  };
 }
