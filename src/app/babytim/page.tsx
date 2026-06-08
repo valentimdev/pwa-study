@@ -1,5 +1,5 @@
 import MobileFeaturesPage from "@/components/mobile-features-page";
 
-export default function Home() {
+export default function BabytimPage() {
   return <MobileFeaturesPage />;
 }
