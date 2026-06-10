@@ -1,5 +1,5 @@
-import MobileFeaturesPage from "@/components/mobile-features-page";
+import LandingPage from "@/components/landing-page";
 
 export default function Home() {
-  return <MobileFeaturesPage></MobileFeaturesPage>;
+  return <LandingPage />;
 }
