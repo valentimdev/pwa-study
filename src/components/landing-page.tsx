@@ -1,6 +1,7 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
+import { useRouter } from "next/navigation";
 
 type DeviceType = "android" | "ios" | "windows" | "macos" | "linux" | "unknown";
 
@@ -8,6 +9,10 @@ type DeviceInfo = {
   label: string;
   type: DeviceType;
   isDesktop: boolean;
+};
+
+type NavigatorWithStandalone = Navigator & {
+  standalone?: boolean;
 };
 
 const deviceInfo: Record<DeviceType | "detecting", DeviceInfo> = {
@@ -86,7 +91,7 @@ const defaultDevice: DeviceInfo = {
 };
 
 const siteUrl =
-  "https://pwa-study-auxzqmiit-valentims-projects-e3404479.vercel.app/";
+  "https://pwa-study-eight.vercel.app/";
 const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(
   siteUrl,
 )}`;
@@ -139,6 +144,7 @@ function getServerDeviceSnapshot() {
 }
 
 export default function LandingPage() {
+  const router = useRouter();
   const device = useSyncExternalStore(
     subscribeToDeviceChanges,
     getDeviceSnapshot,
@@ -146,14 +152,23 @@ export default function LandingPage() {
   );
   const content = deviceCopy[device.type];
 
+  useEffect(() => {
+    const browserStandalone = window.matchMedia(
+      "(display-mode: standalone)",
+    ).matches;
+    const iosStandalone =
+      (navigator as NavigatorWithStandalone).standalone === true;
+
+    if (browserStandalone || iosStandalone) {
+      router.replace("/aplication");
+    }
+  }, [router]);
+
   return (
     <main className="min-h-screen bg-stone-50 px-4 py-6 text-zinc-950 sm:px-6 lg:px-8">
       <section className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-5xl flex-col justify-center gap-8">
         <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <div className="space-y-5">
-            <p className="inline-flex w-fit rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-800">
-              PWA Study
-            </p>
 
             <div className="space-y-3">
               <h1 className="max-w-3xl text-4xl font-semibold leading-tight text-zinc-950 sm:text-5xl">
