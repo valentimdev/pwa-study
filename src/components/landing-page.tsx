@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 
 type DeviceType = "android" | "ios" | "windows" | "macos" | "linux" | "unknown";
@@ -13,6 +13,11 @@ type DeviceInfo = {
 
 type NavigatorWithStandalone = Navigator & {
   standalone?: boolean;
+};
+
+type BeforeInstallPromptEvent = Event & {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
 };
 
 const deviceInfo: Record<DeviceType | "detecting", DeviceInfo> = {
@@ -145,12 +150,15 @@ function getServerDeviceSnapshot() {
 
 export default function LandingPage() {
   const router = useRouter();
+  const [installPrompt, setInstallPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null);
   const device = useSyncExternalStore(
     subscribeToDeviceChanges,
     getDeviceSnapshot,
     getServerDeviceSnapshot,
   );
   const content = deviceCopy[device.type];
+  const canInstallOnAndroid = device.type === "android" && installPrompt;
 
   useEffect(() => {
     const browserStandalone = window.matchMedia(
@@ -163,6 +171,38 @@ export default function LandingPage() {
       router.replace("/aplication");
     }
   }, [router]);
+
+  useEffect(() => {
+    function handleBeforeInstallPrompt(event: Event) {
+      event.preventDefault();
+      setInstallPrompt(event as BeforeInstallPromptEvent);
+    }
+
+    function handleAppInstalled() {
+      setInstallPrompt(null);
+    }
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    window.addEventListener("appinstalled", handleAppInstalled);
+
+    return () => {
+      window.removeEventListener(
+        "beforeinstallprompt",
+        handleBeforeInstallPrompt,
+      );
+      window.removeEventListener("appinstalled", handleAppInstalled);
+    };
+  }, []);
+
+  async function handleInstallClick() {
+    if (!installPrompt) {
+      return;
+    }
+
+    await installPrompt.prompt();
+    await installPrompt.userChoice;
+    setInstallPrompt(null);
+  }
 
   return (
     <main className="min-h-screen bg-stone-50 px-4 py-6 text-zinc-950 sm:px-6 lg:px-8">
@@ -177,6 +217,16 @@ export default function LandingPage() {
               <p className="max-w-2xl text-base leading-7 text-zinc-600">
                 {content.intro}
               </p>
+
+              {canInstallOnAndroid ? (
+                <button
+                  className="inline-flex items-center justify-center rounded-md bg-zinc-950 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2"
+                  type="button"
+                  onClick={handleInstallClick}
+                >
+                  Instalar app
+                </button>
+              ) : null}
             </div>
           </div>
 
